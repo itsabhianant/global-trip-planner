@@ -1,0 +1,45 @@
+<div class="container mt-5">
+  <h2 class="text-center mb-4">Smart Global Trip Planner</h2>
+
+  <form (ngSubmit)="planTrip()" class="row g-3 justify-content-center">
+    <div *ngFor="let city of cities; let i = index; trackBy: trackByIndex" class="col-md-6">
+      <label class="form-label">City {{ i + 1 }}</label>
+      <input
+        type="text"
+        [(ngModel)]="cities[i]"
+        name="city-{{ i }}"
+        class="form-control"
+        placeholder="Enter City"
+        required
+      />
+    </div>
+
+    <div class="col-md-2 d-flex align-items-end">
+      <button type="button" (click)="addCityField()" class="btn btn-secondary w-100">+ Add City</button>
+    </div>
+
+    <div class="col-12 text-center">
+      <button type="submit" class="btn btn-primary px-4">Plan Trip</button>
+    </div>
+  </form>
+
+  <!-- Loading and error messages -->
+  <div class="text-center mt-4" *ngIf="loading">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p class="mt-2">Planning your trip...</p>
+  </div>
+
+  <div class="text-danger text-center mt-2" *ngIf="error">
+    {{ error }}
+  </div>
+
+  <!-- Optimized route output -->
+  <div class="mt-5" *ngIf="route.length > 1">
+    <h4 class="text-center mb-3">Optimized Visit Order:</h4>
+    <ol class="text-center">
+      <li *ngFor="let city of route">{{ city }}</li>
+    </ol>
+
+    <div id="map" style="height: 500px; margin-top: 30px;"></div>
+  </div>
+</div>

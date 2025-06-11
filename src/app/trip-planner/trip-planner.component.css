@@ -1,0 +1,45 @@
+/* Input & form styling */
+input.form-control {
+  margin-bottom: 10px;
+  transition: border-color 0.3s ease;
+}
+
+input.form-control:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.15rem rgba(0, 123, 255, 0.25);
+}
+
+/* Spinner loading indicator */
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+
+/* Centered map container */
+#map {
+  height: 500px;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+}
+
+/* Optimized route list */
+ol {
+  list-style: decimal inside;
+  font-size: 1.1rem;
+  padding-left: 0;
+}
+
+li {
+  margin-bottom: 8px;
+}
+
+/* General layout padding */
+.container {
+  max-width: 900px;
+}
+
+/* Button hover effect */
+button.btn:hover {
+  opacity: 0.9;
+}
