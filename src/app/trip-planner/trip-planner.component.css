@@ -1,45 +1,130 @@
-/* Input & form styling */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* ==== Background Wrapper ==== */
+.background-wrapper {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.background-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-size: cover;
+  background-position: center;
+  z-index: 1;
+  filter: blur(8px) brightness(0.6);
+  transition: background-image 1s ease-in-out;
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.1); /* optional white tint */
+  z-index: 2;
+}
+
+/* ==== Glass Container ==== */
+.container {
+  position: relative;
+  z-index: 3;
+  max-width: 960px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  padding: 2rem;
+  margin: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* ==== Inputs ==== */
 input.form-control {
   margin-bottom: 10px;
-  transition: border-color 0.3s ease;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.95);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 input.form-control:focus {
-  border-color: #007bff;
-  box-shadow: 0 0 0 0.15rem rgba(0, 123, 255, 0.25);
+  border-color: #00a8cc;
+  box-shadow: 0 0 0 0.2rem rgba(0, 168, 204, 0.25);
 }
 
-/* Spinner loading indicator */
+label.form-label {
+  font-weight: 500;
+  color: white;
+}
+
+/* ==== Buttons ==== */
+button.btn {
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  font-weight: 600;
+}
+
+button.btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+/* ==== Spinner ==== */
 .spinner-border {
   width: 3rem;
   height: 3rem;
 }
 
-/* Centered map container */
+/* ==== Map ==== */
 #map {
   height: 500px;
   width: 100%;
   border: 1px solid #ccc;
-  border-radius: 10px;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
 
-/* Optimized route list */
+/* ==== Route List ==== */
+.result-box {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
 ol {
   list-style: decimal inside;
   font-size: 1.1rem;
   padding-left: 0;
+  color: #222;
 }
 
 li {
   margin-bottom: 8px;
 }
 
-/* General layout padding */
-.container {
-  max-width: 900px;
+/* ==== Headings ==== */
+h2 {
+  font-weight: bold;
+  color: white;
+  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.4);
 }
 
-/* Button hover effect */
-button.btn:hover {
-  opacity: 0.9;
+h4 {
+  font-weight: 600;
+  color: #333;
+}
+
+.text-danger {
+  font-weight: 500;
 }

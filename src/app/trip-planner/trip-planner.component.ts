@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
@@ -12,7 +12,7 @@ import * as L from 'leaflet';
   templateUrl: './trip-planner.component.html',
   styleUrls: ['./trip-planner.component.css']
 })
-export class TripPlannerComponent {
+export class TripPlannerComponent implements OnInit {
   cities: string[] = [''];
   coordinates: { [city: string]: L.LatLng } = {};
   route: string[] = [];
@@ -20,7 +20,29 @@ export class TripPlannerComponent {
   loading = false;
   error = '';
 
+  backgroundImages: string[] = [
+    'assets/img1.jpg',
+    'assets/img2.jpg',
+    'assets/img3.jpg',
+    'assets/img4.jpg',
+    'assets/img5.jpg',
+    'assets/img6.jpg',
+    'assets/img7.jpg',
+    'assets/img8.jpg',
+    'assets/img9.jpg',
+    'assets/img10.jpg'
+  ];
+  currentBackground: string = this.backgroundImages[0];
+  bgIndex: number = 0;
+
   constructor(private http: HttpClient) {}
+
+  ngOnInit(): void {
+    setInterval(() => {
+      this.bgIndex = (this.bgIndex + 1) % this.backgroundImages.length;
+      this.currentBackground = this.backgroundImages[this.bgIndex];
+    }, 3000); // change background every 10 seconds
+  }
 
   addCityField() {
     if (this.cities[this.cities.length - 1].trim() !== '') {
@@ -133,7 +155,7 @@ export class TripPlannerComponent {
 
   initMap() {
     if (this.map) {
-      this.map.remove(); // Remove previous map instance
+      this.map.remove();
     }
 
     setTimeout(() => {
@@ -151,9 +173,8 @@ export class TripPlannerComponent {
         attribution: '&copy; OpenStreetMap contributors'
       }).addTo(this.map);
 
-      // ✅ Only draw after map is ready
       this.drawRoute();
-    }, 100); // small delay to ensure map container is in the DOM
+    }, 100);
   }
 
   drawRoute() {
@@ -173,19 +194,16 @@ export class TripPlannerComponent {
       latlngs.push(coord);
     }
 
-    latlngs.push(latlngs[0]); // close the loop
+    latlngs.push(latlngs[0]);
 
-    // Draw polyline
     L.polyline(latlngs, { color: 'green', weight: 4 }).addTo(this.map);
 
-    // Add markers
     this.route.forEach((city, i) => {
       const marker = L.marker(this.coordinates[city])
         .bindPopup(`${i + 1}. ${city}`)
         .addTo(this.map!);
     });
 
-    // Fit map to bounds
     const bounds = L.latLngBounds(latlngs);
     this.map.fitBounds(bounds, { padding: [50, 50] });
 
