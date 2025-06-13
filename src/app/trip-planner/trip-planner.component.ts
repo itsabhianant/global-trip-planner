@@ -13,12 +13,13 @@ import * as L from 'leaflet';
   styleUrls: ['./trip-planner.component.css']
 })
 export class TripPlannerComponent implements OnInit {
-  cities: string[] = [''];
-  coordinates: { [city: string]: L.LatLng } = {};
+  locations: string[] = [''];
+  coordinates: { [location: string]: L.LatLng } = {};
   route: string[] = [];
   map: L.Map | undefined;
   loading = false;
   error = '';
+  totalDistanceKm = 0;
 
   backgroundImages: string[] = [
     'assets/img1.jpg',
@@ -41,18 +42,24 @@ export class TripPlannerComponent implements OnInit {
     setInterval(() => {
       this.bgIndex = (this.bgIndex + 1) % this.backgroundImages.length;
       this.currentBackground = this.backgroundImages[this.bgIndex];
-    }, 3000); // change background every 10 seconds
+    }, 3000); // rotate every 3s
   }
 
-  addCityField() {
-    if (this.cities[this.cities.length - 1].trim() !== '') {
-      this.cities.push('');
+  addLocationField() {
+    if (this.locations[this.locations.length - 1].trim() !== '') {
+      this.locations.push('');
     } else {
-      alert('Please enter a city name before adding another.');
+      alert('Please enter a location before adding another.');
     }
   }
 
-  trackByIndex(index: number, item: string): number {
+  removeLocationField(index: number) {
+    if (this.locations.length > 1) {
+      this.locations.splice(index, 1);
+    }
+  }
+
+  trackByIndex(index: number): number {
     return index;
   }
 
@@ -61,93 +68,77 @@ export class TripPlannerComponent implements OnInit {
     this.error = '';
     this.route = [];
     this.coordinates = {};
+    this.totalDistanceKm = 0;
 
-    const coordsPromises = this.cities.map(city => this.getCoordinates(city.trim()));
+    const coordsPromises = this.locations.map(location => this.getCoordinates(location.trim()));
 
     try {
       const resolved = await Promise.all(coordsPromises);
 
       resolved.forEach((coord, i) => {
-        const name = this.cities[i].trim();
+        const name = this.locations[i].trim();
         if (coord && name.length > 0) {
           this.coordinates[name] = coord;
         } else {
-          console.warn(`⚠️ Skipping invalid or empty city: "${this.cities[i]}"`);
+          console.warn(`⚠️ Skipping invalid or empty location: "${this.locations[i]}"`);
         }
       });
 
-      console.log('🧭 Coordinates:', this.coordinates);
-
-      const validCityNames = Object.keys(this.coordinates);
-      if (validCityNames.length < 2) {
-        this.error = 'Please enter at least two valid cities.';
-        console.error('❌ Not enough valid cities.');
+      const validNames = Object.keys(this.coordinates);
+      if (validNames.length < 2) {
+        this.error = 'Please enter at least two valid locations.';
         return;
       }
 
-      this.route = this.solveTSP(validCityNames);
-      console.log('📌 Final route:', this.route);
-
-      if (this.route.length >= 2) {
-        this.initMap(); // drawRoute is called after map init
-      } else {
-        this.error = 'Route too short. Need at least 2 valid cities.';
-        console.error('❌ Route too short:', this.route);
-      }
+      this.route = this.solveTSP(validNames);
+      this.initMap();
 
     } catch (err: any) {
       this.error = err.message || 'Error fetching coordinates';
-      console.error('❌ Trip planning error:', err);
     } finally {
       this.loading = false;
     }
   }
 
-  getCoordinates(city: string): Promise<L.LatLng | null> {
-    const url = `https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(city)}&key=${environment.openCageApiKey}`;
-    console.log('🔍 Fetching coordinates for:', city);
+  getCoordinates(location: string): Promise<L.LatLng | null> {
+    const url = `https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(location)}&key=${environment.openCageApiKey}`;
 
     return this.http.get<any>(url).toPromise()
       .then(data => {
-        console.log('✅ Geocode result for', city, data);
         if (data.results.length > 0) {
           const { lat, lng } = data.results[0].geometry;
           return new L.LatLng(lat, lng);
         }
-
-        console.warn(`⚠️ No results found for: ${city}`);
         return null;
       })
-      .catch(err => {
-        console.error(`❌ API error for ${city}:`, err);
-        return null;
-      });
+      .catch(() => null);
   }
 
-  solveTSP(cities: string[]): string[] {
-    if (cities.length === 0) return [];
-
-    const start = cities[0];
-    const visited = new Set<string>();
+  solveTSP(locations: string[]): string[] {
+    const start = locations[0];
+    const visited = new Set<string>([start]);
     const route = [start];
-    visited.add(start);
-
     let current = start;
-    while (route.length < cities.length) {
-      let nextCity = '';
+
+    while (route.length < locations.length) {
+      let next = '';
       let minDist = Infinity;
-      for (let city of cities) {
-        if (!visited.has(city)) {
-          const dist = this.coordinates[current].distanceTo(this.coordinates[city]);
+
+      for (const loc of locations) {
+        if (!visited.has(loc)) {
+          const dist = this.coordinates[current].distanceTo(this.coordinates[loc]);
           if (dist < minDist) {
             minDist = dist;
-            nextCity = city;
+            next = loc;
           }
         }
       }
-      route.push(nextCity);
-      visited.add(nextCity);
-      current = nextCity;
+
+      if (next) {
+        visited.add(next);
+        route.push(next);
+        current = next;
+      }
     }
 
     return route;
@@ -178,35 +169,55 @@ export class TripPlannerComponent implements OnInit {
   }
 
   drawRoute() {
-    if (!this.map || this.route.length < 2) {
-      console.warn('⚠️ Map not initialized or route too short to draw.');
-      return;
-    }
+    if (!this.map || this.route.length < 2) return;
 
-    const latlngs: L.LatLng[] = [];
+    const latlngs: L.LatLng[] = this.route.map(loc => this.coordinates[loc]);
+    latlngs.push(latlngs[0]); // Optional loop
 
-    for (const city of this.route) {
-      const coord = this.coordinates[city];
-      if (!coord) {
-        console.error(`❌ Missing coordinates for city: ${city}`);
-        return;
-      }
-      latlngs.push(coord);
-    }
+    L.polyline(latlngs, { color: 'green', weight: 4 }).addTo(this.map!);
 
-    latlngs.push(latlngs[0]);
+    this.route.forEach((loc, i) => {
+      const coord = this.coordinates[loc];
 
-    L.polyline(latlngs, { color: 'green', weight: 4 }).addTo(this.map);
+      const icon = L.divIcon({
+        className: 'animated-pin',
+        html: `<div class="pin-bounce"><span class="pin-number">${i + 1}</span></div>`,
+        iconSize: [30, 42],
+        iconAnchor: [15, 42]
+      });
 
-    this.route.forEach((city, i) => {
-      const marker = L.marker(this.coordinates[city])
-        .bindPopup(`${i + 1}. ${city}`)
-        .addTo(this.map!);
+      L.marker(coord, { icon })
+        .addTo(this.map!)
+        .bindPopup(`<b>${i + 1}. ${loc}</b>`);
     });
 
-    const bounds = L.latLngBounds(latlngs);
-    this.map.fitBounds(bounds, { padding: [50, 50] });
+    this.totalDistanceKm = 0;
+    for (let i = 0; i < latlngs.length - 1; i++) {
+      const from = latlngs[i];
+      const to = latlngs[i + 1];
+      this.totalDistanceKm += this.getDistanceInKm(from.lat, from.lng, to.lat, to.lng);
+    }
+    this.totalDistanceKm = parseFloat(this.totalDistanceKm.toFixed(2));
+
+    this.map.fitBounds(L.latLngBounds(latlngs), { padding: [50, 50] });
 
     console.log('✅ Route drawn on map:', latlngs);
+    console.log('🛣️ Total Distance:', this.totalDistanceKm, 'km');
+  }
+
+  getDistanceInKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+    const R = 6371;
+    const dLat = this.deg2rad(lat2 - lat1);
+    const dLon = this.deg2rad(lon2 - lon1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  }
+
+  deg2rad(deg: number): number {
+    return deg * (Math.PI / 180);
   }
 }

@@ -1,0 +1,49 @@
+/* ==== Global animated numbered pin ==== */
+.animated-pin .pin-bounce {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  background-color: #007bff;
+  border-radius: 50%;
+  color: white;
+  text-align: center;
+  font-weight: bold;
+  font-size: 14px;
+  line-height: 30px;
+  box-shadow: 0 0 6px rgba(0, 123, 255, 0.4);
+  animation: bounce 1.5s infinite;
+}
+
+.animated-pin .pin-bounce::after {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border: 6px solid transparent;
+  border-top-color: #007bff;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+button.btn-outline-danger {
+  font-size: 18px;
+  height: 40px;
+  padding: 0 14px;
+  line-height: 1;
+}
+
+/* src/styles.css */
+body.signup-page {
+  background: url('/assets/signinpageBG.jpg') no-repeat center center fixed;
+  background-size: cover;
+}

@@ -11,28 +11,37 @@
     <h2 class="text-center mb-4">🌍 DuniyaGhum.com</h2>
 
     <form (ngSubmit)="planTrip()" class="row g-3 justify-content-center">
-      <div *ngFor="let city of cities; let i = index; trackBy: trackByIndex" class="col-md-6">
-        <label class="form-label text-white">City {{ i + 1 }}</label>
-        <input
-          type="text"
-          [(ngModel)]="cities[i]"
-          name="city-{{ i }}"
-          class="form-control"
-          placeholder="Enter City"
-          required
-        />
-      </div>
+  <div *ngFor="let location of locations; let i = index; trackBy: trackByIndex" class="col-md-6 d-flex align-items-center gap-2">
+    <div class="flex-grow-1">
+      <label class="form-label text-light">Location {{ i + 1 }}</label>
+      <input
+        type="text"
+        [(ngModel)]="locations[i]"
+        name="location-{{ i }}"
+        class="form-control"
+        placeholder="Enter a location"
+        required
+      />
+    </div>
+    <button
+      *ngIf="locations.length > 1"
+      type="button"
+      class="btn btn-outline-danger mt-4"
+      (click)="removeLocationField(i)"
+      title="Remove location"
+    >❌</button>
+  </div>
 
-      <div class="col-md-2 d-flex align-items-end">
-        <button type="button" (click)="addCityField()" class="btn btn-secondary w-100">
-          + Add City
-        </button>
-      </div>
+  <div class="col-md-2 d-flex align-items-end">
+    <button type="button" (click)="addLocationField()" class="btn btn-secondary w-100">+ Add Location</button>
+  </div>
 
-      <div class="col-12 text-center">
-        <button type="submit" class="btn btn-primary px-4">🚀 Plan Trip</button>
-      </div>
-    </form>
+  <div class="col-12 text-center">
+    <button type="submit" class="btn btn-primary px-4">Plan Trip</button>
+  </div>
+</form>
+
+
 
     <!-- Loading Spinner -->
     <div class="text-center mt-4" *ngIf="loading">
@@ -49,6 +58,12 @@
       <ol class="text-center">
         <li *ngFor="let city of route">{{ city }}</li>
       </ol>
+
+      <div class="text-center mt-3" *ngIf="totalDistanceKm > 0">
+        <h5 class="text-success">🛣️ Total Trip Distance: {{ totalDistanceKm }} km</h5>
+      </div>
+
+
       <div id="map" class="mt-4"></div>
     </div>
   </div>

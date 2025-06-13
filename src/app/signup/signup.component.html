@@ -1,0 +1,36 @@
+<div class="signup-wrapper">
+  <div class="glass-card">
+    <h2>Create Your Account</h2>
+
+    <form (ngSubmit)="signup()">
+      <div class="mb-3">
+        <input
+          type="email"
+          [(ngModel)]="email"
+          name="email"
+          class="form-control"
+          placeholder="Email"
+          required />
+      </div>
+
+      <div class="mb-3">
+        <input
+          type="password"
+          [(ngModel)]="password"
+          name="password"
+          class="form-control"
+          placeholder="Password"
+          required />
+      </div>
+
+      <button class="btn btn-success w-100" type="submit">Sign Up</button>
+    </form>
+
+    <p class="text-danger mt-3" *ngIf="error">{{ error }}</p>
+
+    <p class="text-light mt-3">
+      Already have an account?
+      <a routerLink="/login" class="text-warning text-decoration-underline">Login here</a>
+    </p>
+  </div>
+</div>
