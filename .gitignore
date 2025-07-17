@@ -1,6 +1,34 @@
-# Angular
+# Node modules
 node_modules/
+
+# Production build
 dist/
+.angular/
+firebase/
+
+# Environment files
 .env
 src/environments/environment.ts
 src/environments/environment.prod.ts
+
+# Firebase
+.firebaserc
+firebase.json
+.firebase/
+
+# VS Code settings
+.vscode/
+
+# macOS system files
+.DS_Store
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+Thumbs.db
+
+# Angular cache
+.editorconfig
